@@ -7,7 +7,36 @@ Score = 500;
 % 各観測点に対して処理
 for m = 1:length(X)
 
-    if m ~= length(X)
+    if m = length(X)
+        x_obs = X(m);
+        y_obs = Y(m);
+        layer_idx = layer_vec(1);
+        leyer_vec(m) = layer_idx;
+        dist_vec = sqrt ((x_matrix(layer_idx,:) - x_obs).^2 + (y_matrix(layer_idx,:) - y_obs).^2);
+        [min_distance, point_idx] = min(dist_vec);
+        nearest_point = [x_matrix(layer_idx, point_idx), y_matrix(layer_idx, point_idx)];
+
+        if min_distance > 50
+            Score = inf;
+            break;
+        end
+
+        X_layer = x_matrix(layer_idx, :);
+        Y_layer = y_matrix(layer_idx, :);
+
+        if point_idx == 1
+            ra_value = atan((Y_layer(2) - Y_layer(1)) / (X_layer(2) - X_layer(1)));
+        elseif point_idx == length(X_layer)
+            ra_value = atan((Y_layer(end) - Y_layer(end-1)) / (X_layer(end) - X_layer(end-1)));
+        else
+            ra_value = atan((Y_layer(point_idx+1) - Y_layer(point_idx-1)) / (X_layer(point_idx+1) - X_layer(point_idx-1)));
+        end
+
+        closest_points(m, :) = nearest_point;
+        ra(m) = ra_value;
+    end
+
+    else
         x_obs = X(m);
         y_obs = Y(m);
     
@@ -37,19 +66,15 @@ for m = 1:length(X)
             ra_value = atan((Y_layer(end) - Y_layer(end-1)) / (X_layer(end) - X_layer(end-1)));
         else
             ra_value = atan((Y_layer(point_idx+1) - Y_layer(point_idx-1)) / (X_layer(point_idx+1) - X_layer(point_idx-1)));
+
+        closest_points(m, :) = nearest_point;
+        ra(m) = ra_value;
     end
     
-    else
-        x_obs = X(m);
-        y_obs = Y(m);
-        layer_idx = layer_vec(1);
 end
 
 
-
-
-
-% 距離条件を満たす場合のみスコアを計算
+%条件を満たすとScoreを計算。
 if Score ~= inf
     Score = norm(RA - ra,1);
     Count=Count+1;
