@@ -25,9 +25,9 @@ plot(x_matrix, y_matrix, 'b.'); % 地層の位置を描画
 
 for i= 1:6
     for j = 1:22
-        P= [x_matrix(5i-3, 5j-3);y_matrix(5i-3, 5j-3)];
-        Q = [x_matrix(5i-3, 5j-2);y_matrix(5i-3, 5j-2)];%右隣
-        W = [x_matrix(5i-4, 5j-3);y_matrix(5i-4, 5j-3)];%上
+        P= [x_matrix(5*i-3, 5*j-3);y_matrix(5*i-3, 5*j-3)];
+        Q = [x_matrix(5*i-3, 5*j-2);y_matrix(5*i-3, 5*j-2)];%右隣
+        W = [x_matrix(5*i-4, 5*j-3);y_matrix(5*i-4, 5*j-3)];%上
 
         V1=Q-P;
         V2=W-P; %基底ベクトルを表示。
