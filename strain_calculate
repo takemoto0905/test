@@ -1,1 +1,36 @@
+clear all
+%パラメータ組み合わせとtime_stepsを入力
+a=45;
+b=5;
+ps=1.8;
+ramp=58;
+phif=79;
+xo=2360;
+time_steps=100;
 
+pointset;
+
+layersmoving;
+
+%座標面を用意
+figure;
+hold on;
+axis equal;
+axis([-1000 4000 -1000 1000]);
+grid on;
+xlabel('X軸(m)');
+ylabel('Y軸(m)');
+title('Strain');
+plot(x_matrix, y_matrix, 'b.'); % 地層の位置を描画
+
+for i= 1:6
+    for j = 1:22
+        P= [x_matrix(5i-3, 5j-3);y_matrix(5i-3, 5j-3)];
+        Q = [x_matrix(5i-3, 5j-2);y_matrix(5i-3, 5j-2)];%右隣
+        W = [x_matrix(5i-4, 5j-3);y_matrix(5i-4, 5j-3)];%上
+
+        V1=Q-P;
+        V2=W-P; %基底ベクトルを表示。
+
+        F = [V1, V2]; %変形勾配ベクトル
+        B = F* F';
