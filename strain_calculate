@@ -20,7 +20,7 @@ axis([-1000 4000 -1000 1000]);
 grid on;
 xlabel('X軸(m)');
 ylabel('Y軸(m)');
-title('Strain');
+title('Strain Ellipse');
 plot(x_matrix, y_matrix, 'b.'); % 地層の位置を描画
 
 for i= 1:6
@@ -34,3 +34,21 @@ for i= 1:6
 
         F = [V1, V2]; %変形勾配ベクトル
         B = F* F';
+        [eigvecs, eigvals] = eig(B);
+
+        axis_lengths = sqrt(diag(eigvals));  % サイズ: 2x1
+        rotation_matrix = eigvecs;
+
+        theta = linspace(0, 2 * pi, 100);
+        ellipse_x = axis_lengths(1) * cos(theta);
+        ellipse_y = axis_lengths(2) * sin(theta);
+
+        rotated_ellipse = rotation_matrix * [ellipse_x; ellipse_y];
+
+        translated_ellipse = rotated_ellipse + (Q+W)/2;
+        plot(translated_ellipse(1, :), translated_ellipse(2, :), 'LineWidth', 2);
+        hold on;
+    end
+end
+
+hold off;
