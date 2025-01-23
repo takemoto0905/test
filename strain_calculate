@@ -12,6 +12,9 @@ pointset;
 
 layersmoving;
 
+O=[xo;yo];
+
+
 %座標面を用意
 figure;
 hold on;
@@ -23,30 +26,44 @@ ylabel('Y軸(m)');
 title('Strain Ellipse');
 plot(x_matrix, y_matrix, 'b.'); % 地層の位置を描画
 
+%この設定と250m置きに配置
 for i= 1:6
     for j = 1:22
-        P= [x_matrix(5*i-3, 5*j-3);y_matrix(5*i-3, 5*j-3)];
-        Q = [x_matrix(5*i-3, 5*j-2);y_matrix(5*i-3, 5*j-2)];%右隣
-        W = [x_matrix(5*i-4, 5*j-3);y_matrix(5*i-4, 5*j-3)];%上
+        P= [x_matrix(5*i-1, 5*j-1);y_matrix(5*i-1, 5*j-1)];
+        Q = [x_matrix(5*i-1, 5*j-2);y_matrix(5*i-1, 5*j-2)];%左隣
+        W = [x_matrix(5*i, 5*j-1);y_matrix(5*i, 5*j-1)];%上
 
+
+        if (norm(P-O)<R & (norm(Q-O)>R || norm(W-O)>R)) || (norm(P-O)>R & (norm(W-O)<R || norm(Q-O)<R))
+            continue;
+        end
+        
         V1=Q-P;
         V2=W-P; %基底ベクトルを表示。
 
-        F = [V1, V2]; %変形勾配ベクトル
+        F = [V1, V2]/50; %変形勾配ベクトル
         B = F* F';
         [eigvecs, eigvals] = eig(B);
+        
+        %長軸を基準に回転させる
+        [eigvals_sorted, idx] = sort(diag(eigvals), 'descend'); % 固有値を降順に並べ替え
+        eigvecs_sorted = eigvecs(:, idx); % 固有ベクトルも並べ替え
 
-        axis_lengths = sqrt(diag(eigvals));  % サイズ: 2x1
-        rotation_matrix = eigvecs;
+        axis_lengths = sqrt(eigvals_sorted);  % サイズ: 2x1
+        v1 = eigvecs_sorted(:,1);
 
-        theta = linspace(0, 2 * pi, 100);
-        ellipse_x = axis_lengths(1) * cos(theta);
-        ellipse_y = axis_lengths(2) * sin(theta);
+        cos_theta = v1(1);
+        sin_theta = v1(2);
+        rotation_matrix = [cos_theta, -sin_theta; sin_theta, cos_theta];     % 回転行列
+
+        theta_vals = linspace(0, 2 * pi, 100);
+        ellipse_x = 25*cos(theta_vals)/axis_lengths(2);
+        ellipse_y = 25*sin(theta_vals)/axis_lengths(1);
 
         rotated_ellipse = rotation_matrix * [ellipse_x; ellipse_y];
 
         translated_ellipse = rotated_ellipse + (Q+W)/2;
-        plot(translated_ellipse(1, :), translated_ellipse(2, :), 'LineWidth', 2);
+        plot(translated_ellipse(1, :), translated_ellipse(2, :), 'LineWidth', 2,'Color', 'r');
         hold on;
     end
 end
